@@ -1,0 +1,4 @@
+NEXTJS_ENV=development
+RESEND_API_KEY=re_xxxxxxxx
+CONTACT_EMAIL_FROM=Speak Peek Website <noreply@speakpeek.net>
+CONTACT_EMAIL_TO=admin@speakpeek.net
