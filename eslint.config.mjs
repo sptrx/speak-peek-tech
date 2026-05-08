@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // OpenNext / Wrangler artifacts (often large bundled JS — do not lint)
+    ".open-next/**",
+    ".wrangler/**",
   ]),
 ]);
 
