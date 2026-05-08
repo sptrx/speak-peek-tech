@@ -1,6 +1,37 @@
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 const ADMIN_EMAIL = "admin@speakpeek.net";
+
+/**
+ * Read mail settings from the Worker binding `env` first so Cloudflare runtime
+ * secrets / vars win. `process.env.*` alone can be inlined at build time from CI
+ * and override production Worker configuration.
+ */
+async function getContactMailEnv(): Promise<{
+  resendKey: string | undefined;
+  from: string | undefined;
+  to: string;
+}> {
+  let cf: Partial<CloudflareEnv> | undefined;
+  try {
+    ({ env: cf } = await getCloudflareContext({ async: true }));
+  } catch {
+    cf = undefined;
+  }
+
+  const resendKey = cf?.RESEND_API_KEY ?? process.env.RESEND_API_KEY;
+  const fromRaw = cf?.CONTACT_EMAIL_FROM ?? process.env.CONTACT_EMAIL_FROM;
+  const toRaw = cf?.CONTACT_EMAIL_TO ?? process.env.CONTACT_EMAIL_TO;
+
+  return {
+    resendKey,
+    from: fromRaw?.trim(),
+    to: toRaw?.trim() || ADMIN_EMAIL,
+  };
+}
 
 function escapeHtml(s: string) {
   return s
@@ -54,9 +85,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const to = process.env.CONTACT_EMAIL_TO?.trim() || ADMIN_EMAIL;
-  const resendKey = process.env.RESEND_API_KEY;
-  const from = process.env.CONTACT_EMAIL_FROM?.trim();
+  const { resendKey, from, to } = await getContactMailEnv();
 
   if (!resendKey) {
     console.error("[contact] Missing RESEND_API_KEY");
