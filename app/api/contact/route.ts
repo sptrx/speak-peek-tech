@@ -58,12 +58,23 @@ export async function POST(request: Request) {
   const resendKey = process.env.RESEND_API_KEY;
   const from = process.env.CONTACT_EMAIL_FROM?.trim();
 
-  if (!resendKey || !from) {
-    console.error("[contact] Missing RESEND_API_KEY or CONTACT_EMAIL_FROM");
+  if (!resendKey) {
+    console.error("[contact] Missing RESEND_API_KEY");
     return NextResponse.json(
       {
         error:
-          "Email delivery is not configured. Set RESEND_API_KEY and CONTACT_EMAIL_FROM (verified sender in Resend).",
+          "Email API key missing. Locally: add RESEND_API_KEY to .env.local. Production: wrangler secret put RESEND_API_KEY (or add in Cloudflare Workers → Variables and secrets).",
+      },
+      { status: 503 },
+    );
+  }
+
+  if (!from) {
+    console.error("[contact] Missing CONTACT_EMAIL_FROM");
+    return NextResponse.json(
+      {
+        error:
+          "Sender address missing. Set CONTACT_EMAIL_FROM in wrangler.jsonc vars or .env.local to a Resend-verified address.",
       },
       { status: 503 },
     );
