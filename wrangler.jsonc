@@ -22,7 +22,7 @@
 	],
 	// Plaintext Worker vars (secrets go in Dashboard or `wrangler secret put`)
 	"vars": {
-		"CONTACT_EMAIL_FROM": "Speak Peek Website <notifications@speakpeek.net>",
+		"CONTACT_EMAIL_FROM": "Speak Peek Website <admin@speakpeek.net>",
 		"CONTACT_EMAIL_TO": "admin@speakpeek.net"
 	}
 }
